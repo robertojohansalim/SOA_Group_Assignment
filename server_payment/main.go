@@ -5,14 +5,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/mux"
+
 	"robertojohansalim.github.com/payment/model"
 	"robertojohansalim.github.com/payment/service"
-)
-
-const (
-	MAKE_PAYMENT_PATH     = "/api/make_payment"
-	GET_PAYMENT_PATH      = "/api/get_payment"
-	COMPLETE_PAYMENT_PATH = "/api/complete_payment"
 )
 
 const (
@@ -36,12 +32,13 @@ func main() {
 
 	paymentService := service.NewPaymentService(paymentModel)
 
+	r := mux.NewRouter()
 	// Mapping Endpoints
-	http.HandleFunc(MAKE_PAYMENT_PATH, paymentService.MakePayment)
-	http.HandleFunc(GET_PAYMENT_PATH, paymentService.GetPayment)
-	http.HandleFunc(COMPLETE_PAYMENT_PATH, paymentService.CompletePayment)
+	r.HandleFunc(service.MAKE_PAYMENT_PATH, paymentService.MakePayment)
+	r.HandleFunc(service.GET_PAYMENT_PATH, paymentService.GetPayment)
+	r.HandleFunc(service.MANAGE_PAYMENT_PATH, paymentService.ManagePayment)
 
 	// Start Serving Server
 	log.Println("Starting Server in port: " + port)
-	http.ListenAndServe(":"+port, nil)
+	http.ListenAndServe(":"+port, r)
 }

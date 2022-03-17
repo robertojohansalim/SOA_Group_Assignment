@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+const MAKE_PAYMENT_PATH = "/api/make_payment"
+
 func (ths *paymentService) MakePayment(responseWriter http.ResponseWriter, request *http.Request) {
 	if request.Method != "POST" {
 		responseWriter.WriteHeader(http.StatusBadRequest)
