@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"robertojohansalim.github.com/payment/model"
 	"robertojohansalim.github.com/payment/service"
 )
 
@@ -25,16 +26,20 @@ func main() {
 		port = customPort
 	}
 
-	paymentService := service.NewPaymentService()
+	paymentModel := model.MakePaymentModel(model.PaymentDatabaseModelConfig{
+		Host:         "127.0.0.1",
+		Port:         "5432",
+		User:         "postgres",
+		Password:     "mysecret",
+		DatabaseName: "paymentService",
+	})
+
+	paymentService := service.NewPaymentService(paymentModel)
 
 	// Mapping Endpoints
 	http.HandleFunc(MAKE_PAYMENT_PATH, paymentService.MakePayment)
 	http.HandleFunc(GET_PAYMENT_PATH, paymentService.GetPayment)
 	http.HandleFunc(COMPLETE_PAYMENT_PATH, paymentService.CompletePayment)
-
-	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	fmt.Fprintln(w, "halo!")
-	// })
 
 	// Start Serving Server
 	log.Println("Starting Server in port: " + port)

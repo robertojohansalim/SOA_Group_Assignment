@@ -1,6 +1,10 @@
 package service
 
-import "net/http"
+import (
+	"net/http"
+
+	"robertojohansalim.github.com/payment/model"
+)
 
 type PaymentService interface {
 	MakePayment(http.ResponseWriter, *http.Request)
@@ -8,9 +12,12 @@ type PaymentService interface {
 	CompletePayment(http.ResponseWriter, *http.Request)
 }
 
-func NewPaymentService() PaymentService {
-	return &paymentService{}
+func NewPaymentService(paymentModel model.PaymentDatabaseModel) PaymentService {
+	return &paymentService{
+		paymentModel: paymentModel,
+	}
 }
 
 type paymentService struct {
+	paymentModel model.PaymentDatabaseModel
 }
