@@ -11,10 +11,13 @@
 
 
 ## Service Documentation
+### Authorization
+All Request must provide Authorization Header that contains the username
+```
+"authorization": "registered_account_id"
+```
 
-
-
-#### Make Payment Record
+### Make Payment Record
 `POST:` ```/api/make_payment```
 
 Request Body:
@@ -29,16 +32,44 @@ Request Body:
 ```
 
 
-#### Get Payment Record
+### Get Payment Record
 `GET:` `/api/get_payment/{id}`
 ```
 // No Body Parameter
 ```
-#### Complete Payment Record
+### Complete Payment Record
 `POST:` `/api/manage_payment`
 ```
 {
     "external_id": "your-unique-id",
     "action": "pay"
+}
+```
+
+List of action:
+- "pay"
+- "cancel"
+- "denied"
+
+
+### Status Callbacks
+#### Setting up Callbacks
+`POST:` `/api/setup_callback`
+```
+{
+    "callback_type": "update_status_payment",
+    "callback_url": "http://your.domain/recieve_callback/url"
+}
+```
+
+#### Update Status Callbacks
+```
+{
+    "id": "payment_id",
+    "external_id": "your-unique-id",
+    "status": "PAID"
+    "method": "BCA_VA",
+    "amount": 20000,
+    "expiry_date" : "2006-01-02 15:04:05"
 }
 ```

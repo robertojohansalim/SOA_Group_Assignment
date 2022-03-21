@@ -13,6 +13,7 @@ import (
 
 const (
 	DEFAULT_PORT = "8080"
+	HOST         = "http://127.0.0.1"
 )
 
 func main() {
@@ -30,13 +31,16 @@ func main() {
 		DatabaseName: "paymentService",
 	})
 
-	paymentService := service.NewPaymentService(paymentModel)
+	paymentService := service.NewPaymentService(paymentModel, HOST+":"+port)
 
 	r := mux.NewRouter()
-	// Mapping Endpoints
+	// Manage Payment Endpoints
 	r.HandleFunc(service.MAKE_PAYMENT_PATH, paymentService.MakePayment)
 	r.HandleFunc(service.GET_PAYMENT_PATH, paymentService.GetPayment)
 	r.HandleFunc(service.MANAGE_PAYMENT_PATH, paymentService.ManagePayment)
+
+	// Register Callback Endpoints
+	r.HandleFunc(service.REGISTER_CALLBACK_PATH, paymentService.RegisterCallback)
 
 	// Start Serving Server
 	log.Println("Starting Server in port: " + port)
