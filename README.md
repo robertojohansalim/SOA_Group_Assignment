@@ -1,4 +1,7 @@
 # SOA Group Assignment
+Design Docs: [link](https://docs.google.com/document/d/1hGjmMhqqulE55O5xv6HABcGp5HGiFqJ3pcVxoVxxbBA/edit?usp=sharing)
+
+
 
 Sample Design Architecture (Mungkin mau di rubah sesuai dengan update dari kelas):
 
