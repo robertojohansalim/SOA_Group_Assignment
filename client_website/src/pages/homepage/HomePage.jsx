@@ -32,7 +32,7 @@ export default function HomePage() {
         {
             "id": "product-id-4",
             "title": "Lorem ipsum 4",
-            "description": "Lorem Ipsum Dolor Si Amet",
+            "description": "Lorem Ipsum Dolor Si Amet test",
             "imageURL": "https://picsum.photos/200"
         }
     ]
