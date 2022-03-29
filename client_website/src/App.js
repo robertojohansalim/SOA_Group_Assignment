@@ -1,6 +1,4 @@
 import { Route, Routes } from "react-router-dom"
-// import {Navbar} from "./components"
-// import DashboardNavbar from "./components/Navbars/DashboardNavbar"
 import Navbar from "./components/Navbar/Navbar"
 import CartModal from "./components/CartModal/CartModal"
 import { HomePage, } from "./pages"

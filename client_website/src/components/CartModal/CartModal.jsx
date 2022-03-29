@@ -12,19 +12,18 @@ function CartModal(props) {
                 {props.cart.length ===0 ? <Modal.Body>"Cart Is Empty"</Modal.Body>:null}
                 {props.cart.map((cartItem, idx) => {
                     // TODO STYLING: pake Bootstrap
-                    return <Modal.Body>
+                    return <Modal.Body key={idx}>
                         <Row>
                             <Col sm={2} >
                                 <Button
                                     variant="outline-danger"
-                                    key={idx}
                                     onClick={() => props.removeFromCart(idx)}
                                 >
                                     <RemoveIcon />
                                 </Button>
                             </Col>
                             <Col sm={10}>
-                                <p key={idx}>{cartItem}    </p>
+                                <p>{cartItem}</p>
                             </Col>
                         </Row>
                     </Modal.Body>
@@ -33,7 +32,11 @@ function CartModal(props) {
                     <Button variant="secondary" onClick={() => props.onHide()}>
                         Close
                     </Button>
-                    <Button variant="primary" onClick={() => props.onHide()}>
+                    <Button variant="primary" onClick={() => {
+                            props.onHide()
+                            props.checkout(props.cart)
+                            }
+                        }>
                         Checkout
                     </Button>
                 </Modal.Footer>

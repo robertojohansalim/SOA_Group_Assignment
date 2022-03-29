@@ -10,7 +10,7 @@ export default function ProductPost(props) {
     }
 
     return (
-        <Col xs={4} lg={3} xl={3}>
+        <Col xs={4} lg={3} xl={3} className="mb-3">
             <Card style={{height:"100%"}}
                 onClick={cardOnClickHandler}
             >

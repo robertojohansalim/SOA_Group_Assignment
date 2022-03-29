@@ -3,6 +3,7 @@ import { Container, Row } from "react-bootstrap"
 import ProductPost from "../../components/ProductPost/ProductPost"
 import Navbar from "../../components/Navbar/Navbar"
 import CartModal from "../../components/CartModal/CartModal"
+import FooterPage from "../../components/Footer/Footer"
 
 export default function HomePage() {
     const [cart, setCart] = useState([])
@@ -29,15 +30,14 @@ export default function HomePage() {
             "imageURL": "https://picsum.photos/200"
         },
         {
-            "id": "product-id-3",
-            "title": "Lorem ipsum 3",
+            "id": "product-id-4",
+            "title": "Lorem ipsum 4",
             "description": "Lorem Ipsum Dolor Si Amet",
             "imageURL": "https://picsum.photos/200"
         }
     ]
 
     function addToCart(productId) {
-
         setCart(prevItem => [
             ...prevItem,
             productId
@@ -48,13 +48,17 @@ export default function HomePage() {
         setCart(prevItem => prevItem.filter((_,idx)=> idx !== removeIndex))
     }
 
-
     function onHideCartModalHandler() {
         setShowCart(false)
     }
 
     function showCartModalHanlder() {
         setShowCart(true)
+    }
+
+    function checkoutHandler(cart){
+        // TODO: Checkout Handler
+        console.log("Checkout Cart:", cart)
     }
 
     return (
@@ -70,6 +74,7 @@ export default function HomePage() {
                 show={showCart}
                 onHide={onHideCartModalHandler}
                 removeFromCart={removeFromCart}
+                checkout={checkoutHandler}
             />
             <Container>
                 <Row>
@@ -84,6 +89,7 @@ export default function HomePage() {
                         />))}
                 </Row>
             </Container>
+            <FooterPage />
         </>
     )
 }
