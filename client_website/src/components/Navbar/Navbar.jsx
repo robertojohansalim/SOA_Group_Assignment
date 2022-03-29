@@ -1,30 +1,50 @@
-import React from "react"
-import { Navbar as NavbarBS, Nav, Container, NavDropdown } from "react-bootstrap"
+import React, { useState } from "react"
+import { Navbar as NavbarBS, Nav, Container } from "react-bootstrap"
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import "./Navbar.css"
+import logo from '../../assets/Logo.png'
+
 
 // React Bootstrap
 // https://react-bootstrap.netlify.app/components/navbar/#navbars
-export default function Navbar() {
+function Navbar(props) {
 
-    return (
-        <NavbarBS bg="light" expand="lg">
+  const [cartItemCount, setCartItemCount] = useState(0)
+
+  return (
+    <div>
+      <NavbarBS collapseOnSelect expand="lg" bg="light" className="mb-4">
         <Container>
-          <NavbarBS.Brand href="#home">React-Bootstrap</NavbarBS.Brand>
-          <NavbarBS.Toggle aria-controls="basic-navbar-nav" />
-          <NavbarBS.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link href="#home">Home</Nav.Link>
-              <Nav.Link href="#link">Link</Nav.Link>
-              <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-                <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
-              </NavDropdown>
+          <NavbarBS.Brand href="#home">
+            <img alt="Logo" src={logo} style={{ "height": "3rem" }} />
+            SOAmart
+          </NavbarBS.Brand>
+          <Nav>
+            <Nav.Link href="" onClick={props.showCartModalHanlder}>
+              <ShoppingCartIcon />
+            </Nav.Link>
+          </Nav>
+{/*           
+          <NavbarBS.Toggle aria-controls="responsive-navbar-nav" />
+          <NavbarBS.Collapse id="responsive-navbar-nav" className="flex-row-reverse">
+            <Nav>
+              <Nav.Link href="" onClick={props.showCartModalHanlder}>
+                <ShoppingCartIcon />
+              </Nav.Link>
+              <Nav.Link eventKey={2} href="#memes">
+                Login
+              </Nav.Link>
+              <Nav.Link eventKey={2} href="#memes">
+                Sign up
+              </Nav.Link>
             </Nav>
-          </NavbarBS.Collapse>
+          </NavbarBS.Collapse> */}
         </Container>
       </NavbarBS>
-    )
+
+
+    </div>
+  )
 }
 
+export default Navbar;

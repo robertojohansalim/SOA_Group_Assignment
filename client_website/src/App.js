@@ -1,20 +1,17 @@
-import{Route, Routes} from "react-router-dom"
+import { Route, Routes } from "react-router-dom"
 // import {Navbar} from "./components"
 // import DashboardNavbar from "./components/Navbars/DashboardNavbar"
 import Navbar from "./components/Navbar/Navbar"
-import {HomePage,} from "./pages"
+import CartModal from "./components/CartModal/CartModal"
+import { HomePage, } from "./pages"
 // import './App.css';
 
 function App() {
   return (
     <div className="App">
-    
-    <Navbar/>
-    {/* <DashboardNavbar/> */}
-     <Routes>
-     
+      <Routes>
         <Route path="/" element={<HomePage />} />
-     </Routes>
+      </Routes>
     </div>
   );
 }
