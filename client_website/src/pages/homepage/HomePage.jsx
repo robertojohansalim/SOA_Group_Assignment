@@ -38,6 +38,9 @@ export default function HomePage() {
     ]
 
     function addToCart(productId) {
+        // Show Cart when Add Item
+        setShowCart(true)
+        // Add Item to Cart
         setCart(prevItem => [
             ...prevItem,
             productId
