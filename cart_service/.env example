@@ -6,3 +6,7 @@ FLASK_ENV=development
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=
+
+# Payment Variable
+PAYMENT_HOST=localhost:8080
+PAYMENT_SECRET=

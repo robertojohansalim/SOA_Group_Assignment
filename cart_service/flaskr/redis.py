@@ -44,7 +44,8 @@ class RedisClient:
     
     def delete(self, key:str):
         if self.useInMemoryOnly:
-            del(self.storage[key])
+            self.storage.pop(key)
+
             return
 
         self.redis.delete(key)

@@ -3,12 +3,17 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"robertojohansalim.github.com/payment/model"
 )
 
 func AuthorizeGetUserIDWithCallback(request *http.Request, databaseModel model.PaymentDatabaseModel) (userID, callbackURL string, err error) {
 	register_user_id := request.Header.Get("authorization")
+	if os.Getenv("WITH_AUTHORIZATION_VALIDATION") == "FALSE" {
+		return register_user_id, "", nil
+	}
+
 	if register_user_id == "" {
 		err = fmt.Errorf("unauthorized access, no authorization header provided")
 		return
@@ -32,16 +37,18 @@ func AuthorizeGetUserID(request *http.Request, databaseModel model.PaymentDataba
 }
 
 func writeResponse(responseWriter http.ResponseWriter, StatusCode int, message string) {
+	fmt.Printf("Writing Response %v: %v", StatusCode, message)
 	responseWriter.WriteHeader(StatusCode)
 	responseWriter.Write([]byte(message))
 }
 
 var mapAvailableMethod = map[string]bool{
-	"BCA_VA": true,
-	"BRI_VA": true,
-	"GOPAY":  true,
-	"OVO":    true,
-	"QRIS":   true,
+	"BANK_TRANSFER": true,
+	"BCA_VA":        true,
+	"BRI_VA":        true,
+	"GOPAY":         true,
+	"OVO":           true,
+	"QRIS":          true,
 }
 
 func isMethodAvailable(method string) bool {

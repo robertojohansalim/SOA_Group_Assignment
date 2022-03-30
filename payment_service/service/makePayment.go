@@ -32,6 +32,7 @@ type MakePaymentReq struct {
 	Method         string `json:"method"`
 	Amount         int64  `json:"amount"`
 	ActiveDuration int64  `json:"active_duration"`
+	CallbackURL    string `json:"callback_url"`
 }
 
 type MakePaymentRes struct {
@@ -43,10 +44,19 @@ func (ths *paymentService) MakePayment(responseWriter http.ResponseWriter, reque
 		writeResponse(responseWriter, http.StatusBadRequest, "Unsupported Method")
 		return
 	}
+	// // byts, _ := json.MarshalIndent(, "", " ")
+	fmt.Println("\033[36m", string("make Payment Called"), "\033[0m")
+
+	// resTe := MakePaymentRes{
+	// 	PaymentLink: fmt.Sprintf("%s/api/manage_payment/%s/QUERY", "publicURL", "record.ID"),
+	// }
+	// bytsTe, _ := json.Marshal(resTe)
+	// writeResponse(responseWriter, http.StatusOK, string(bytsTe))
+	// return
 
 	userID, err := AuthorizeGetUserID(request, ths.paymentModel)
 	if err != nil {
-		writeResponse(responseWriter, http.StatusUnauthorized, err.Error())
+		writeResponse(responseWriter, http.StatusUnauthorized, fmt.Sprintf("Unauthorized Access: %v", err.Error()))
 		return
 	}
 
@@ -57,6 +67,9 @@ func (ths *paymentService) MakePayment(responseWriter http.ResponseWriter, reque
 		return
 	}
 	err = json.Unmarshal(body, &req)
+	fmt.Println("\033[36m", string("make Payment Called"), "\033[0m")
+	bytsTe, _ := json.MarshalIndent(req, "", " ")
+	fmt.Println("\033[36m", string(bytsTe), "\033[0m")
 	if err != nil {
 		writeResponse(responseWriter, http.StatusBadRequest, err.Error())
 		return

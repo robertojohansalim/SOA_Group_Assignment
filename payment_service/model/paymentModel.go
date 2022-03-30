@@ -10,7 +10,8 @@ import (
 
 type paymentDatabase struct {
 	PaymentDatabaseModelConfig
-	db *sql.DB
+	db              *sql.DB
+	useInMemoryOnly bool
 }
 
 type PaymentRecordModel struct {

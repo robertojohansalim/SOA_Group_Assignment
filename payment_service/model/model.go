@@ -27,6 +27,7 @@ type PaymentDatabaseModelConfig struct {
 
 func MakePaymentModel(
 	config PaymentDatabaseModelConfig,
+	useInMemoryOnly bool,
 ) PaymentDatabaseModel {
 	connectionString := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -46,5 +47,6 @@ func MakePaymentModel(
 	return &paymentDatabase{
 		PaymentDatabaseModelConfig: config,
 		db:                         db,
+		useInMemoryOnly:            useInMemoryOnly,
 	}
 }

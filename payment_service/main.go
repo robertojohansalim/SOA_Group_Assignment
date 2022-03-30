@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
-
+	"github.com/joho/godotenv"
 	"robertojohansalim.github.com/payment/model"
 	"robertojohansalim.github.com/payment/service"
 )
@@ -17,19 +17,24 @@ const (
 )
 
 func main() {
+	godotenv.Load()
+
 	// Reading Environment Variable
 	port := DEFAULT_PORT
 	if customPort := os.Getenv("HTTP_SERVER_PORT"); customPort != "" {
 		port = customPort
 	}
 
-	paymentModel := model.MakePaymentModel(model.PaymentDatabaseModelConfig{
-		Host:         "127.0.0.1",
-		Port:         "5432",
-		User:         "postgres",
-		Password:     "mysecret",
-		DatabaseName: "paymentService",
-	})
+	paymentModel := model.MakePaymentModel(
+		model.PaymentDatabaseModelConfig{
+			Host:         "127.0.0.1",
+			Port:         "5432",
+			User:         "postgres",
+			Password:     "mysecret",
+			DatabaseName: "paymentService",
+		},
+		false,
+	)
 
 	paymentService := service.NewPaymentService(paymentModel, HOST+":"+port)
 

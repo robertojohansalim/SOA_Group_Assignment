@@ -82,14 +82,14 @@ Request body:
   ]
 }
 ```
-### Upsert Cart
+### Place Order (Checkout)
 `POST` `http://127.0.0.1:5000/api/place_order`
 
 Request body:
 ```
 {
   "ID": "9458b918-0afc-4163-aa20-219f8c0bb38f",
-  "task":"CHECKOUT"
+  "action":"CHECKOUT"
 }
 ```
 
