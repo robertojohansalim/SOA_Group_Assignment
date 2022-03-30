@@ -57,7 +57,7 @@ class Controller extends BaseController
     public function addStock(Request $request){
         $product = Product::getProduct($request['id']);
 
-        $stock = $product->product_stock + $request['stock'];
+        $stock = $product['product_stock'] + $request['stock'];
 
         Product::updateProduct($request['id'], ['product_stock' => $stock]);
 
@@ -67,7 +67,7 @@ class Controller extends BaseController
     public function reduceStock(Request $request){
         $product = Product::getProduct($request['id']);
 
-        $stock = $product->product_stock - $request['stock'];
+        $stock = $product['product_stock'] - $request['stock'];
 
         if($stock >= 0){
             Product::updateProduct($request['id'], ['product_stock' => $stock]);
@@ -96,6 +96,6 @@ class Controller extends BaseController
         else{
             $productList = Product::getAllProduct();
         }
-        return json_encode($productList->toArray());
+        return json_encode($productList);
     }
 }
