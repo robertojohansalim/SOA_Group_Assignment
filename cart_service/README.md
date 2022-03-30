@@ -1,98 +1,38 @@
 # Cart / Orchestrator Service
 ## Tech Stack
-- Python with Flask
-- Redis DB https://github.com/redis/redis-py
+- PHP, lumen framework
+- mysql
 
-## How to Setup
+## How to Start (PHP server way)
 1. Set up virtual environemnt
     ```
-    // Create a venv
-    $ python -m venv ./venv
+    // go to svr-product directory
+    $ cd ./product_service/svr-service
 
-    // source the venv (in ubuntu)
-    $ source ./venv/bin/activate
+    // instal depedency
+    $ composer install
 
-    // Instal the required modules
-    $ pip install -r requirements.txt
-    ```
-2. Set up Redis 
-    ```
-    // Example of setting up redis using docker
-    docker run --name my-redis -p 6379:6379 -d redis
-    ```
+    // create .env
+    $ cp .env.example .env
 
-3. Set up the .env
-    - Leave everything as is if no configuration required (will be run as developemnt)
+	// set mysql database at env
+	DB_HOST=[YOUR DB HOST]
+	DB_PORT=[YOUR DB PORT]
+	DB_DATABASE=[YOUR DB NAME]
+	DB_USERNAME=[YOUR DB USERNAME]
+	DB_PASSWORD=[YOUR DB PASSWORD]
 
-## How to run
-1. Start server using:
-    ```
-    python -m flask run -p 5000
+	// create table
+	$ php aritsan migrate
+	
+	// run php server
+	$ php -S localhost:8000 -t public
     ```
 
 
 ## Documentation:
-#### Cart Structure:
-```
-{
-  "cart": {
-    "ID": "cart-id",
-    "lineItems": [
-      {
-        "title": "Item 1",
-        "description": "Item 1 Very Long Description",
-        "quantity": 1,
-        "price": 15000
-      },
-      {
-        "title": "Item 2",
-        "description": "Item 2 Very Long Description",
-        "quantity": 1,
-        "price": 5000
-      }
-    ],
-    "totalPrice": 20000
-  }
-}
-```
 
-### Get Cart
-`GET` `http://127.0.0.1:5000/api/get_cart/{cart-id}`
-
-Request Body:
-```
-// Left empty
-```
-
-
-### Upsert Cart
-`POST` `http://127.0.0.1:5000/api/upsert_cart`
-
-Request body:
-```
-{
-  "ID": "9458b918-0afc-4163-aa20-219f8c0bb38f",
-  "lineItems": [
-    {
-      "description": "Item 1 Very Long Description",
-      "price": 15000,
-      "quantity": 1,
-      "title": "Item 1"
-    }
-  ]
-}
-```
-### Place Order (Checkout)
-`POST` `http://127.0.0.1:5000/api/place_order`
-
-Request body:
-```
-{
-  "ID": "9458b918-0afc-4163-aa20-219f8c0bb38f",
-  "action":"CHECKOUT"
-}
-```
+For endpoint, import thunder-collection_svr-product_postman.json to postman or thunder-collection_svr-product.json to thunder client
 
 ## Reference:
-- https://towardsdatascience.com/the-right-way-to-build-an-api-with-python-cd08ab285f8f
-- https://flask.palletsprojects.com/en/2.1.x/tutorial/layout/
+- https://lumen.laravel.com/docs/7.x
