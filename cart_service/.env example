@@ -1,0 +1,8 @@
+# Flask App Variable
+FLASK_APP=flaskr
+FLASK_ENV=development
+
+# Redis Variable
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
