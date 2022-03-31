@@ -4,5 +4,5 @@ Design Docs: [link](https://docs.google.com/document/d/1hGjmMhqqulE55O5xv6HABcGp
 
 
 Sample Design Architecture (Mungkin mau di rubah sesuai dengan update dari kelas):
+![image](https://user-images.githubusercontent.com/69228888/160984327-14303602-c146-4f6e-bccd-228138745fed.png)
 
-![image](https://user-images.githubusercontent.com/69228888/159398742-093b3687-a8b9-4f5c-a58e-9572496b34c2.png)
