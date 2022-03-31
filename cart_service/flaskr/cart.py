@@ -8,24 +8,28 @@ from flask_cors import CORS, cross_origin
 
 from .redis import RedisClient
 from .clients.paymentClient import PaymentClient
+from .clients.productClient import ProductClient
 
 from typing import List
 from dataclasses import dataclass
 
+
 @dataclass
 class LineItem:
-    product_id:str = ""
-    title:str = ""
-    description:str = ""
-    quantity:int = ""
-    price:int = ""
+    product_id: str = ""
+    title: str = ""
+    description: str = ""
+    quantity: int = ""
+    price: int = ""
+
 
 @dataclass
 class Cart:
     ID: str = ""
     lineItems: List[LineItem] = None
-    paymentMethod:str = ""
+    paymentMethod: str = ""
     totalPrice: int = 0
+
 
 cart = Cart(
     ID="cart-id",
@@ -45,18 +49,24 @@ cart = Cart(
     ],
     # paymentMethod=
     totalPrice=20000
-   )
+)
 
-def create_cart_bp(redisClient : RedisClient, paymentClient: PaymentClient):
+
+def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, productClient: ProductClient):
 
     bp = Blueprint('cart', __name__)
 
     @cross_origin
-    @bp.route("/api/get_cart/<string:cart_id>", methods=["GET"])
-    def get_cart(cart_id):
-        
-        cart = redisClient.get(cart_id)
-        return jsonify({"cart":cart})
+    @bp.route("/api/get_cart", methods=["POST"])
+    def get_cart():
+        request_data = request.get_json()
+        cart_ID = ""
+        try:
+            cart_ID = request_data["ID"]
+        except:
+            return "Error Bad Request"
+        cart = redisClient.get(cart_ID)
+        return jsonify({"cart": cart})
 
     @cross_origin
     @bp.route("/api/upsert_cart", methods=["POST"])
@@ -65,15 +75,15 @@ def create_cart_bp(redisClient : RedisClient, paymentClient: PaymentClient):
         print(str(request.get_data()))
         # request_data = request.get_json()
         request_data = json.loads(request.data, strict=False)
-        cart_ID, paymentMethod = "" , ""
+        cart_ID, paymentMethod = "", ""
         newLineItem = []
         try:
             paymentMethod = request_data["paymentMethod"]
             newLineItem = request_data["lineItems"] or []
         except:
-            return "Error Bad Request" 
+            return "Error Bad Request"
 
-        #* Generate new ID if ID do not provided
+        # * Generate new ID if ID do not provided
         try:
             cart_ID = request_data["ID"] or ""
         except:
@@ -82,20 +92,21 @@ def create_cart_bp(redisClient : RedisClient, paymentClient: PaymentClient):
         if cart_ID == "":
             cart_ID = str(uuid.uuid4())
 
-        #* Get Existing Cart
+        # * Get Existing Cart
         cart = redisClient.get(cart_ID)
-        
+
         if cart is None:
             cart = Cart(ID=cart_ID, lineItems=[], paymentMethod=paymentMethod)
         else:
             cart = Cart(**cart)
 
-        #* Update Cart
+        # * Update Cart
         cart.lineItems = newLineItem[:]
         cart.paymentMethod = paymentMethod
-        cart.totalPrice = sum([item['quantity'] * item['price'] for item in cart.lineItems])
+        cart.totalPrice = sum([item['quantity'] * item['price']
+                              for item in cart.lineItems])
 
-        #* Save Cart to Storage
+        # * Save Cart to Storage
         redisClient.set(cart.ID, cart.__dict__)
         print(cart)
         response = jsonify(cart)
@@ -111,15 +122,16 @@ def create_cart_bp(redisClient : RedisClient, paymentClient: PaymentClient):
             print(request_data)
             cart_ID = request_data["ID"]
         except:
-            return "Error Bad Request"  
+            return "Error Bad Request"
         cart = redisClient.get(cart_ID)
 
         if cart is None:
-            return "Error No Cart to Process" 
+            return "Error No Cart to Process"
 
-        cart = Cart(**cart) 
+        cart = Cart(**cart)
 
-        # redisClient.delete(cart_ID)
+        # Empty Checkouted Cart
+        redisClient.delete(cart_ID)
 
         # returnValue = {
         #     "cart_id": cart.ID,
@@ -127,14 +139,14 @@ def create_cart_bp(redisClient : RedisClient, paymentClient: PaymentClient):
         #     "payment_link": "Random Link"
         # }
         # return jsonify(returnValue)
-        #TODO: Generate Payment
+        # TODO: Generate Payment
         paymentMethod = cart.paymentMethod
-        paymentLink = paymentClient.makePayment(externalID=cart_ID, amount=cart.totalPrice, method=paymentMethod)
+        paymentLink = paymentClient.makePayment(
+            externalID=cart_ID, amount=cart.totalPrice, method=paymentMethod)
 
-        #TODO: Remove Product Quantity
+        # TODO: Remove Product Quantity
 
-
-        #TODO: return payment method 
+        # TODO: return payment method
         returnValue = {
             "cart_id": cart_ID,
             "payment_method": paymentMethod,

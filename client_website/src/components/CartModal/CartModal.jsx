@@ -24,6 +24,7 @@ function CartModal(props) {
                                 </Button>
                             </Col>
                             <Col sm={10}>
+                            {console.log(cartItem)}
                                 <p>{cartItem.title}</p>
                             </Col>
                         </Row>
