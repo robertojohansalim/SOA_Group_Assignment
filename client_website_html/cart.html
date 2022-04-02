@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>Cart - Indoapril</title>
+</head>
+<body>
+    <div class="navbar flex-row content-space-between">
+        <div class="logo">
+            <a href="index.html"><h1>Ind<span>o</span>april</h1></a>
+        </div>
+        <div class="nav-menu flex-row align-items-center">
+            <a href="index.html" class="ms-1">Products</a>
+            <a href="cart.html" class="nav-active ms-1">Cart</a>
+            <a href="payments.html" class="ms-1">Payments</a>
+        </div>
+    </div>
+    <div class="container flex-row">
+        <div class="cart-container flex-col">
+            <div class="content-title mt-2 mb-1">
+                <h3>Your Cart</h3>
+            </div>
+            <div class="cart-list flex-col">
+                <div id="cart-card">
+                    <div class="cart-title flex-row content-space-between">
+                        <div class="cart-item-details">ITEMS</div>
+                        <div class="cart-item-qty">QUANTITY</div>
+                        <div class="cart-item-price">PRICE</div>
+                        <div class="cart-item-total">TOTAL</div>
+                    </div>
+
+                    <!-- isinya card thumbnail product, diapend pake jquery -->
+                    <div id="cart-item-list">
+                        <!-- <div class="cart-item flex-row">
+                            <a href="">
+                                <div class="cart-item-details flex-row">
+                                    <div class="cart-item-img">
+                                        <img src="" alt="">
+                                    </div>
+                                    <div class="cart-item-title"></div>
+                                </div>
+                                <div class="cart-item-qty">
+                                    <div class="qty-number">
+                                        <span class="qty-minus">-</span>
+                                        <input type="text" value="1"/>
+                                        <span class="qty-plus">+</span>
+                                    </div>
+                                </div>
+                                <div class="cart-item-price"></div>
+                                <div class="cart-item-total"></div>
+                            </a>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="payment-summary-container flex-col">
+            <div class="content-title mt-2 mb-1">
+                <h3>Payment Summary</h3>
+            </div>
+            <div class="summary-container flex-col">
+                <div class="summary-row flex-row content-space-between">
+                    <p class="summary-key">TOTAL ORDER</p>
+                    <p id="total-order" class="summary-value"></p>
+                </div>
+                <div class="summary-row flex-row content-space-between">
+                    <p class="summary-key">SHIPPING COST</p>
+                    <p class="summary-value">$2</p>
+                </div>
+                <div class="summary-row flex-row content-space-between">
+                    <p class="summary-key">TOTAL AMOUNT</p>
+                    <p id="total-amount" class="summary-value"></p>
+                </div>
+                <form action="">
+                    <div class="summary-row payment-method flex-row content-space-between">
+                        <p class="summary-key">PAYMENT METHOD</p>
+                        <select id="method" name="payment_method">
+                            <option value="BCA_VA">BCA_VA</option>
+                            <option value="OVO">OVO</option>
+                            <option value="Gopay">Gopay</option>
+                            <option value="BNI_VA">BNI_VA</option>
+                        </select>
+                    </div>
+                    <button type="submit">
+                        Checkout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" 
+    integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" 
+    crossorigin="anonymous"></script>
+<script src="script.js"></script>
+<script>
+    showCart();
+</script>
