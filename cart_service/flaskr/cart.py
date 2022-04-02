@@ -73,7 +73,6 @@ def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, produ
     def upsert_cart():
         print("Upsert Request Recieved", request)
         print(str(request.get_data()))
-        # request_data = request.get_json()
         request_data = json.loads(request.data, strict=False)
         cart_ID, paymentMethod = "", ""
         newLineItem = []
