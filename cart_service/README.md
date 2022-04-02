@@ -72,6 +72,7 @@ Request body:
 ```
 {
   "ID": "9458b918-0afc-4163-aa20-219f8c0bb38f",
+  "paymentMethod": "",
   "lineItems": [
     {
       "description": "Item 1 Very Long Description",
