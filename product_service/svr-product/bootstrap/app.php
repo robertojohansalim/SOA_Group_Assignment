@@ -106,6 +106,17 @@ $app->configure('app');
 |
 */
 
+// $app->middleware([
+//     App\Http\Middleware\Cors::class // Add this
+// ]);
+
+$app->register(Fruitcake\Cors\CorsServiceProvider::class);
+$app->configure('cors');
+
+$app->middleware([
+    Fruitcake\Cors\HandleCors::class,
+]);
+
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {

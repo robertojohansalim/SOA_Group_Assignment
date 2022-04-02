@@ -14,6 +14,7 @@ class Controller extends BaseController
             'product_price' => $request['product_price'],
             'product_stock' => $request['product_stock'],
             'product_status' => Product::PRD_ACTIVE,
+            'product_desc' => $request['product_desc'],
             'created_at' => gmdate("Y-m-d H:i:s", time()),
             'updated_at' => gmdate("Y-m-d H:i:s", time())
         ]);
