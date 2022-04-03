@@ -44,9 +44,6 @@ func main() {
 	r.HandleFunc(service.GET_PAYMENT_PATH, paymentService.GetPayment)
 	r.HandleFunc(service.MANAGE_PAYMENT_PATH, paymentService.ManagePayment)
 
-	// Register Callback Endpoints
-	r.HandleFunc(service.REGISTER_CALLBACK_PATH, paymentService.RegisterCallback)
-
 	// Start Serving Server
 	log.Println("Starting Server in port: " + port)
 	http.ListenAndServe(":"+port, r)

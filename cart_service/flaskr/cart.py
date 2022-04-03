@@ -102,7 +102,7 @@ def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, produ
 
         if paymentMethod != "":
             cart.paymentMethod = paymentMethod
-            
+
         cart.totalPrice = sum([item['quantity'] * item['price']
                               for item in cart.lineItems])
 
@@ -115,8 +115,12 @@ def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, produ
     @cross_origin
     @bp.route("/api/place_order", methods=["POST"])
     def place_order():
-        request_data = request.get_json()
-        cart_ID = ""
+        print("PLACE ORDER")
+        # request_data = request.get_json()
+        print(str(request.get_data()))
+        request_data = json.loads(request.data, strict=False)
+        print(request_data)
+        cart_ID, paymentMethod = "",  ""
         options = {}
         try:
             print(request_data)
@@ -131,7 +135,7 @@ def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, produ
         cart = Cart(**cart)
 
         # Empty Checkouted Cart
-        redisClient.delete(cart_ID)
+        # redisClient.delete(cart_ID)
 
         # returnValue = {
         #     "cart_id": cart.ID,
@@ -141,16 +145,18 @@ def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, produ
         # return jsonify(returnValue)
         # TODO: Generate Payment
         paymentMethod = cart.paymentMethod
-        paymentLink = paymentClient.makePayment(
-            externalID=cart_ID, amount=cart.totalPrice, method=paymentMethod)
+        # paymentLink = paymentClient.makePayment(
+        #     externalID=cart_ID, amount=cart.totalPrice, method=paymentMethod)
 
         # TODO: Remove Product Quantity
 
         # TODO: return payment method
+        # paymentMet
         returnValue = {
             "cart_id": cart_ID,
-            "payment_method": paymentMethod,
-            "payment_link": paymentLink
+            "payment_method": paymentMethod or "",
+            "payment_id": "random Payment ID",
+            # "payment_link": paymentLink
         }
         return jsonify(returnValue)
 
