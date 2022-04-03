@@ -23,7 +23,7 @@
 	DB_PASSWORD=[YOUR DB PASSWORD]
 
 	// create table
-	$ php aritsan migrate
+	$ php artisan migrate
 	
 	// run php server
 	$ php -S localhost:8000 -t public

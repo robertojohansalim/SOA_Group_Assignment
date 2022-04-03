@@ -57,31 +57,28 @@ def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, produ
     bp = Blueprint('cart', __name__)
 
     @cross_origin
-    @bp.route("/api/get_cart", methods=["POST"])
-    def get_cart():
-        request_data = request.get_json()
-        cart_ID = ""
-        try:
-            cart_ID = request_data["ID"]
-        except:
-            return "Error Bad Request"
-        cart = redisClient.get(cart_ID)
-        return jsonify({"cart": cart})
+    @bp.route("/api/get_cart/<string:cart_id>", methods=["GET"])
+    def get_cart(cart_id):
+        cart = redisClient.get(cart_id)
+        return jsonify({"cart":cart})
 
     @cross_origin
     @bp.route("/api/upsert_cart", methods=["POST"])
     def upsert_cart():
         print("Upsert Request Recieved", request)
         print(str(request.get_data()))
-        # request_data = request.get_json()
         request_data = json.loads(request.data, strict=False)
         cart_ID, paymentMethod = "", ""
         newLineItem = []
         try:
-            paymentMethod = request_data["paymentMethod"]
             newLineItem = request_data["lineItems"] or []
         except:
             return "Error Bad Request"
+
+        try:
+            paymentMethod = request_data["paymentMethod"]
+        except:
+            pass
 
         # * Generate new ID if ID do not provided
         try:
@@ -102,7 +99,10 @@ def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, produ
 
         # * Update Cart
         cart.lineItems = newLineItem[:]
-        cart.paymentMethod = paymentMethod
+
+        if paymentMethod != "":
+            cart.paymentMethod = paymentMethod
+            
         cart.totalPrice = sum([item['quantity'] * item['price']
                               for item in cart.lineItems])
 

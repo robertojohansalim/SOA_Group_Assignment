@@ -1,10 +1,36 @@
-var svc_product = 'http://svr-product.user.cloudjkt01.com';
-var svc_cart = 'http://77a4-118-99-110-227.ngrok.io/api';
+// var svc_product = 'http://svr-product.user.cloudjkt01.com';
+// var svc_cart = 'http://77a4-118-99-110-227.ngrok.io/api';
+const svc_product = 'http://127.0.0.1:8000';
+const svc_cart = 'http://127.0.0.1:5000/api';
+const cart_id = "cart-id-1"
+
+// Helper Function
+function getCart(cart_id) {
+    return $.ajax({
+        url: svc_cart + `/get_cart/${cart_id}`,
+        type: 'get',
+        dataType: 'json',
+        data: {}
+    }
+    )
+}
+
+function getProductDetail(product_id) {
+    return $.ajax({
+        url: svc_product + '/productdetail',
+        type: 'get',
+        dataType: 'json',
+        data: {
+            'id': product_id
+        },
+    })
+}
 
 
 function showAllProduct() {
     $('#product-list').html('');
 
+    console.log("get All Product")
     $.ajax({
         url: svc_product + '/getproductlist',
         type: 'get',
@@ -13,6 +39,7 @@ function showAllProduct() {
 
         },
         success: function (productList) {
+            console.log("Get Success")
             console.log(productList);
             if (productList) {
                 let products = productList;
@@ -45,51 +72,51 @@ function showAllProduct() {
     });
 }
 
-async function addToCart(id) {
+async function addToCart(product_id) {
     var productDetail = '';
-    $.ajax({
-        url: svc_product + '/productdetail',
-        type: 'get',
-        dataType: 'json',
-        data: {
-            'id': id
-        },
-        success: function (data) {
-            if (data) {
-                productDetail = data
-                $.ajax({
-                    url: svc_cart + '/upsert_cart',
-                    type: 'post',
-                    dataType: 'json',
-                    data: JSON.stringify({
-                        "ID": "cart-id",
-                        "lineItems": [
-                            {
-                                "product_id": id,
-                                "title": productDetail.product_name || "",
-                                "description": productDetail.product_desc || "",
-                                "quantity": 1 || 0,
-                                "price": productDetail.product_price || 0
-                            }
-                        ],
-                        "paymentMethod": "",
-                        "totalPrice": productDetail.product_price * 1
-                    }),
-                    success: function (data) {
-                        console.log('add to cart ok');
-                        console.log(data)
-                    }
-                });
-            } else {
-                console.log(data)
-                alert('error');
+    $.when(
+        getProductDetail(product_id),
+        getCart(cart_id)
+    ).done(([productDetail], [{ cart: cart }]) => {
+        const prevLineItems = cart.lineItems.map(lineItem => {
+            return {
+                "product_id": lineItem.product_id,
+                "title": lineItem.title || "",
+                "description": lineItem.description || "",
+                "quantity": lineItem.quantity,
+                "price": lineItem.price || 0
             }
+        })
+        var requestData = {
+            "ID": cart.ID,
+            "lineItems": [
+                ...prevLineItems,
+                {
+                    "product_id": productDetail.id,
+                    "title": productDetail.product_name || "",
+                    "description": productDetail.product_desc || "",
+                    "quantity": 1 || 0,
+                    "price": productDetail.product_price || 0
+                }
+            ],
         }
-    }).then();
-    
+        console.log(requestData)
+        return $.ajax({
+            url: svc_cart + '/upsert_cart',
+            type: 'post',
+            dataType: 'json',
+            data: JSON.stringify(requestData),
+            success: function (data) {
+                console.log('add to cart ok');
+                console.log(data)
+            }
+        });
+    })
+    return
 }
 
 function showProductDetails() {
+    console.log("Show Product Details")
     $('#product-details').html('');
     var productId = location.search.substring(1);
 
@@ -101,6 +128,7 @@ function showProductDetails() {
             'id': productId
         },
         success: function (data) {
+            console.log("SUCCESS Show Product Details")
             if (data) {
                 $('#product-details').append(`
                     <div class="details-container flex-row">
@@ -126,8 +154,10 @@ function showProductDetails() {
                     </div>
                 `)
             }
+            console.log("SUCCESS Show Product Details")
         }
     });
+    console.log("END Show Product Details")
 }
 
 function showCart() {
@@ -138,71 +168,61 @@ function showCart() {
     console.log(totalOrder);
 
     $.ajax({
-        url: 'https://fakestoreapi.com/carts/1',
+        url: svc_cart + `/get_cart/${cart_id}`,
         type: 'get',
         dataType: 'json',
         data: {
 
         },
-        success: function (itemList) {
-            if (itemList) {
-                let products = itemList.products;
+        success: function ({ cart }) {
+            const products = cart.lineItems
+            $.each(products, function (i, product) {
+                let qty = product.quantity;
 
-                $.each(products, function (i, data) {
-                    let qty = data.quantity;
+                $.ajax({
+                    url: svc_product + '/productdetail',
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        'id': product.product_id
+                    },
+                    success: function (productDetail) {
+                        let product = productDetail;
+                        console.log(product)
+                        var totalPrice = product.product_price * qty;
+                        console.log(totalPrice);
+                        totalOrder = totalOrder + totalPrice
 
-                    $.ajax({
-                        url: 'https://fakestoreapi.com/products/' + data.productId,
-                        type: 'get',
-                        dataType: 'json',
-                        data: {
+                        $('#total-order').html('');
+                        $('#total-order').append(`$` + (totalOrder - shippingCost));
 
-                        },
-                        success: function (data) {
+                        $('#total-amount').html('');
+                        $('#total-amount').append(`<strong>$` + totalOrder + `</strong>`);
 
-                            let product = data;
-                            var totalPrice = product.price * qty;
-                            // console.log(totalOrder);
-                            totalOrder = totalOrder + totalPrice
-
-                            $('#total-order').html('');
-                            $('#total-order').append(`$` + (totalOrder - shippingCost));
-
-                            $('#total-amount').html('');
-                            $('#total-amount').append(`<strong>$` + totalOrder + `</strong>`);
-
-                            $('#cart-item-list').append(`
-                                <div class="cart-item flex-row">
-                                    <a href="product_page.html?${data.id}" class="flex-row">
-                                        <div class="cart-item-details flex-row">
-                                            <div class="cart-item-img">
-                                                <img src="`+ product.image + `" alt="">
-                                            </div>
-                                            <div class="cart-item-title">`+ product.title + `</div>
+                        $('#cart-item-list').append(`
+                            <div class="cart-item flex-row">
+                                <a href="product_page.html?${product.id}" class="flex-row">
+                                    <div class="cart-item-details flex-row">
+                                        <div class="cart-item-img">
+                                            <img src="`+ (product.product_image || "") + `" alt="">
                                         </div>
-                                    </a>
-                                    <div class="cart-item-qty">
-                                        <form type="submit">
-                                            <input type="number" value="`+ qty + `"/>
-                                        </form>
+                                        <div class="cart-item-title">`+ product.product_name + `</div>
                                     </div>
-                                    <div class="cart-item-price">$`+ product.price + `</div>
-                                    <div class="cart-item-total">$`+ totalPrice + `</div>
+                                </a>
+                                <div class="cart-item-qty">
+                                    <form type="submit">
+                                        <input type="number" value="`+ qty + `"/>
+                                    </form>
                                 </div>
-                            `);
-                        }
+                                <div class="cart-item-price">$`+ product.product_price + `</div>
+                                <div class="cart-item-total">$`+ totalPrice + `</div>
+                            </div>
+                        `);
+                    }
 
-                    });
                 });
-            } else {
-                $('#cart-item-list').html(`
-                    <div>
-                        <h1>No Data :(</h1>
-                    </div>
-                `)
-            }
-
-
+            });
+            return
         }
     });
 }
