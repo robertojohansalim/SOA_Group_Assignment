@@ -4,6 +4,29 @@ const svc_product = 'http://127.0.0.1:8000';
 const svc_cart = 'http://127.0.0.1:5000/api';
 const cart_id = "cart-id-1"
 
+// Helper Function
+function getCart(cart_id) {
+    return $.ajax({
+        url: svc_cart + `/get_cart/${cart_id}`,
+        type: 'get',
+        dataType: 'json',
+        data: {}
+    }
+    )
+}
+
+function getProductDetail(product_id) {
+    return $.ajax({
+        url: svc_product + '/productdetail',
+        type: 'get',
+        dataType: 'json',
+        data: {
+            'id': product_id
+        },
+    })
+}
+
+
 function showAllProduct() {
     $('#product-list').html('');
 
@@ -49,49 +72,47 @@ function showAllProduct() {
     });
 }
 
-async function addToCart(id) {
+async function addToCart(product_id) {
     var productDetail = '';
-    $.ajax({
-        url: svc_product + '/productdetail',
-        type: 'get',
-        dataType: 'json',
-        data: {
-            'id': id
-        },
-        success: function (data) {
-            if (data) {
-                productDetail = data
-
-                var requestData = {
-                    "ID": cart_id,
-                    "lineItems": [
-                        {
-                            "product_id": id,
-                            "title": productDetail.product_name || "",
-                            "description": productDetail.product_desc || "",
-                            "quantity": 1 || 0,
-                            "price": productDetail.product_price || 0
-                        }
-                    ],
-                }
-                console.log(requestData)
-                $.ajax({
-                    url: svc_cart + '/upsert_cart',
-                    type: 'post',
-                    dataType: 'json',
-                    data: JSON.stringify(requestData),
-                    success: function (data) {
-                        console.log('add to cart ok');
-                        console.log(data)
-                    }
-                });
-            } else {
-                console.log(data)
-                alert('error');
+    $.when(
+        getProductDetail(product_id),
+        getCart(cart_id)
+    ).done(([productDetail], [{ cart: cart }]) => {
+        const prevLineItems = cart.lineItems.map(lineItem => {
+            return {
+                "product_id": lineItem.product_id,
+                "title": lineItem.title || "",
+                "description": lineItem.description || "",
+                "quantity": lineItem.quantity,
+                "price": lineItem.price || 0
             }
+        })
+        var requestData = {
+            "ID": cart.ID,
+            "lineItems": [
+                ...prevLineItems,
+                {
+                    "product_id": productDetail.id,
+                    "title": productDetail.product_name || "",
+                    "description": productDetail.product_desc || "",
+                    "quantity": 1 || 0,
+                    "price": productDetail.product_price || 0
+                }
+            ],
         }
-    }).then();
-
+        console.log(requestData)
+        return $.ajax({
+            url: svc_cart + '/upsert_cart',
+            type: 'post',
+            dataType: 'json',
+            data: JSON.stringify(requestData),
+            success: function (data) {
+                console.log('add to cart ok');
+                console.log(data)
+            }
+        });
+    })
+    return
 }
 
 function showProductDetails() {
