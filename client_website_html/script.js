@@ -202,64 +202,6 @@ function showCart() {
                 });
             });
             return
-            if (itemList) {
-                let products = itemList.products;
-
-                $.each(products, function (i, data) {
-                    let qty = data.quantity;
-
-                    $.ajax({
-                        url: 'https://fakestoreapi.com/products/' + data.productId,
-                        type: 'get',
-                        dataType: 'json',
-                        data: {
-
-                        },
-                        success: function (data) {
-
-                            let product = data;
-                            var totalPrice = product.price * qty;
-                            // console.log(totalOrder);
-                            totalOrder = totalOrder + totalPrice
-
-                            $('#total-order').html('');
-                            $('#total-order').append(`$` + (totalOrder - shippingCost));
-
-                            $('#total-amount').html('');
-                            $('#total-amount').append(`<strong>$` + totalOrder + `</strong>`);
-
-                            $('#cart-item-list').append(`
-                                <div class="cart-item flex-row">
-                                    <a href="product_page.html?${data.id}" class="flex-row">
-                                        <div class="cart-item-details flex-row">
-                                            <div class="cart-item-img">
-                                                <img src="`+ product.image + `" alt="">
-                                            </div>
-                                            <div class="cart-item-title">`+ product.title + `</div>
-                                        </div>
-                                    </a>
-                                    <div class="cart-item-qty">
-                                        <form type="submit">
-                                            <input type="number" value="`+ qty + `"/>
-                                        </form>
-                                    </div>
-                                    <div class="cart-item-price">$`+ product.price + `</div>
-                                    <div class="cart-item-total">$`+ totalPrice + `</div>
-                                </div>
-                            `);
-                        }
-
-                    });
-                });
-            } else {
-                $('#cart-item-list').html(`
-                    <div>
-                        <h1>No Data :(</h1>
-                    </div>
-                `)
-            }
-
-
         }
     });
 }
