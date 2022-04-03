@@ -20,6 +20,7 @@ class CreateProductTable extends Migration
             $table->unsignedBigInteger('product_price');
             $table->unsignedBigInteger('product_stock')->default(0);
             $table->smallInteger('product_status');
+            $table->string('product_image');
             $table->timestamps();
         });
     }
