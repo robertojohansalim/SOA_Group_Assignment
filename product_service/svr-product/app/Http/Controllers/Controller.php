@@ -16,7 +16,8 @@ class Controller extends BaseController
             'product_status' => Product::PRD_ACTIVE,
             'product_desc' => $request['product_desc'],
             'created_at' => gmdate("Y-m-d H:i:s", time()),
-            'updated_at' => gmdate("Y-m-d H:i:s", time())
+            'updated_at' => gmdate("Y-m-d H:i:s", time()),
+            'product_image' => $request['product_image']
         ]);
 
         $product = Product::getProduct($id);
@@ -44,6 +45,9 @@ class Controller extends BaseController
         }
         if(isset($request['product_stock'])){
             $update['product_stock'] = $request['product_stock'];
+        }
+        if(isset($request['product_image'])){
+            $update['product_image'] = $request['product_image'];
         }
 
         $before = Product::getProduct($request['id']);
