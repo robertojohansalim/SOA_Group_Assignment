@@ -1,10 +1,13 @@
-var svc_product = 'http://svr-product.user.cloudjkt01.com';
-var svc_cart = 'http://77a4-118-99-110-227.ngrok.io/api';
-
+// var svc_product = 'http://svr-product.user.cloudjkt01.com';
+// var svc_cart = 'http://77a4-118-99-110-227.ngrok.io/api';
+var svc_product = 'http://127.0.0.1:8000';
+var svc_cart = 'http://127.0.0.1:5000/api';
+var cart_id = "cart-id-1"
 
 function showAllProduct() {
     $('#product-list').html('');
 
+    console.log("get All Product")
     $.ajax({
         url: svc_product + '/getproductlist',
         type: 'get',
@@ -13,6 +16,7 @@ function showAllProduct() {
 
         },
         success: function (productList) {
+            console.log("Get Success")
             console.log(productList);
             if (productList) {
                 let products = productList;
@@ -45,7 +49,8 @@ function showAllProduct() {
     });
 }
 
-async function addToCart(id) {
+async function addToCart(cart_id, id) {
+    var cart_id = cart_id
     var productDetail = '';
     $.ajax({
         url: svc_product + '/productdetail',
@@ -62,7 +67,7 @@ async function addToCart(id) {
                     type: 'post',
                     dataType: 'json',
                     data: JSON.stringify({
-                        "ID": "cart-id",
+                        "ID": cart_id,
                         "lineItems": [
                             {
                                 "product_id": id,
@@ -72,8 +77,6 @@ async function addToCart(id) {
                                 "price": productDetail.product_price || 0
                             }
                         ],
-                        "paymentMethod": "",
-                        "totalPrice": productDetail.product_price * 1
                     }),
                     success: function (data) {
                         console.log('add to cart ok');
