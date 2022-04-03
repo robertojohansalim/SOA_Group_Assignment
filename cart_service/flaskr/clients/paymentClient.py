@@ -28,6 +28,6 @@ class PaymentClient:
 
         response = requests.post(url, json=request,  headers=Headers)
         response_json = response.json()
-        print(response_json["paymentLink"])
+        # print(response_json["PaymentID"])
         print(response.json())
-        return response_json["paymentLink"]
+        return response_json["payment_id"]

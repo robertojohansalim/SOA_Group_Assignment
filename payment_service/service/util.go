@@ -37,7 +37,9 @@ func AuthorizeGetUserID(request *http.Request, databaseModel model.PaymentDataba
 }
 
 func writeResponse(responseWriter http.ResponseWriter, StatusCode int, message string) {
-	fmt.Printf("Writing Response %v: %v", StatusCode, message)
+	// Bypass CORS
+	responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
+	responseWriter.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	responseWriter.WriteHeader(StatusCode)
 	responseWriter.Write([]byte(message))
 }

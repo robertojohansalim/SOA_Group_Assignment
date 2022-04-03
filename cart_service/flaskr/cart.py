@@ -135,19 +135,15 @@ def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, produ
         cart = Cart(**cart)
 
         # Empty Checkouted Cart
-        # redisClient.delete(cart_ID)
+        redisClient.delete(cart_ID)
 
-        # returnValue = {
-        #     "cart_id": cart.ID,
-        #     "payment_method": cart.paymentMethod,
-        #     "payment_link": "Random Link"
-        # }
-        # return jsonify(returnValue)
-        # TODO: Generate Payment
         paymentMethod = cart.paymentMethod
-        # paymentLink = paymentClient.makePayment(
-        #     externalID=cart_ID, amount=cart.totalPrice, method=paymentMethod)
+        externalID = str(uuid.uuid1())
+        paymentID = paymentClient.makePayment(
+            externalID=externalID, amount=cart.totalPrice, method=paymentMethod)
 
+
+        print()
         # TODO: Remove Product Quantity
 
         # TODO: return payment method
@@ -155,7 +151,7 @@ def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, produ
         returnValue = {
             "cart_id": cart_ID,
             "payment_method": paymentMethod or "",
-            "payment_id": "random Payment ID",
+            "payment_id": paymentID,
             # "payment_link": paymentLink
         }
         return jsonify(returnValue)

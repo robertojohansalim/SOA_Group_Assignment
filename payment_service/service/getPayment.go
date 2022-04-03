@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -20,25 +21,21 @@ type GetPaymentRes struct {
 }
 
 func (ths *paymentService) GetPayment(responseWriter http.ResponseWriter, request *http.Request) {
+	fmt.Println("\033[36m", string("GetPayment Called"), "\033[0m")
+
 	if request.Method != "GET" {
 		writeResponse(responseWriter, http.StatusBadRequest, "Unsupported Method")
 		return
 	}
 
-	userID, err := AuthorizeGetUserID(request, ths.paymentModel)
-	if err != nil {
-		writeResponse(responseWriter, http.StatusUnauthorized, err.Error())
-		return
-	}
-
 	vars := mux.Vars(request)
-	externalID := vars["id"]
-	if externalID == "" {
+	paymentId := vars["id"]
+	if paymentId == "" {
 		writeResponse(responseWriter, http.StatusBadRequest, "external_id not found")
 		return
 	}
 
-	paymentRecord, err := ths.paymentModel.GetPaymentRecordByExternalID(userID, externalID)
+	paymentRecord, err := ths.paymentModel.GetPaymentRecordByID(paymentId)
 	if err != nil {
 		writeResponse(responseWriter, http.StatusInternalServerError, err.Error())
 		return
@@ -56,6 +53,6 @@ func (ths *paymentService) GetPayment(responseWriter http.ResponseWriter, reques
 		writeResponse(responseWriter, http.StatusInternalServerError, err.Error())
 		return
 	}
-	responseWriter.Write(byts)
+	writeResponse(responseWriter, http.StatusOK, string(byts))
 	return
 }

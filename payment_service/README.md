@@ -41,6 +41,7 @@ Request Body:
 `POST:` `/api/manage_payment`
 ```
 {
+    "ID" :"Generated ID",
     "external_id": "your-unique-id",
     "action": "pay"
 }
@@ -49,27 +50,5 @@ Request Body:
 List of action:
 - "pay"
 - "cancel"
-- "denied"
 
 
-### Status Callbacks
-#### Setting up Callbacks
-`POST:` `/api/setup_callback`
-```
-{
-    "callback_type": "update_status_payment",
-    "callback_url": "http://your.domain/recieve_callback/url"
-}
-```
-
-#### Update Status Callbacks
-```
-{
-    "id": "payment_id",
-    "external_id": "your-unique-id",
-    "status": "PAID"
-    "method": "BCA_VA",
-    "amount": 20000,
-    "expiry_date" : "2006-01-02 15:04:05"
-}
-```

@@ -2,6 +2,7 @@ var svc_product = 'http://svr-product.user.cloudjkt01.com';
 // var svc_cart = 'http://77a4-118-99-110-227.ngrok.io/api';
 // const svc_product = 'http://127.0.0.1:8000';
 const svc_cart = 'http://127.0.0.1:5000/api';
+const svc_payment = 'http://localhost:8080/api';
 const cart_id = "cart-id-1"
 
 // Helper Function
@@ -170,8 +171,6 @@ function showProductDetails() {
 function showCart() {
     $('#cart-item-list').html('');
     var totalOrder = 0;
-    var shippingCost = 2;
-    totalOrder = totalOrder + shippingCost
     console.log(totalOrder);
 
     $.ajax({
@@ -201,7 +200,7 @@ function showCart() {
                         totalOrder = totalOrder + totalPrice
 
                         $('#total-order').html('');
-                        $('#total-order').append(`$` + (totalOrder - shippingCost));
+                        $('#total-order').append(`$` + (totalOrder));
 
                         $('#total-amount').html('');
                         $('#total-amount').append(`<strong>$` + totalOrder + `</strong>`);
@@ -243,7 +242,7 @@ function registerCheckoutButton() {
         var method = $('#method :selected').text();
         console.log(method)
 
-        getCart(cart_id).then(({ cart: cart })=>{
+        getCart(cart_id).then(({ cart: cart }) => {
             console.log(cart)
             $.ajax({
                 url: svc_cart + "/upsert_cart", // Add To Cart
@@ -251,24 +250,24 @@ function registerCheckoutButton() {
                 dataType: 'json',
                 data: JSON.stringify({
                     ...cart,
-                    "paymentMethod":method
+                    "paymentMethod": method
                 })
             })
         }
         )
-        .then(_ =>
-            $.ajax({
-                url: svc_cart + "/place_order",
-                type: 'post',
-                dataType: 'json',
-                data: JSON.stringify({
-                    "ID": cart_id,
-                    "action": "CHECKOUT"
+            .then(_ =>
+                $.ajax({
+                    url: svc_cart + "/place_order",
+                    type: 'post',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        "ID": cart_id,
+                        "action": "CHECKOUT"
+                    })
                 })
+            ).then(response2 => {
+                window.location = '?paymentID=' + response2.payment_id;
             })
-        ).then(response2 => {
-            window.location = '?paymentID=' + response2.payment_id;
-        })
     });
 }
 
@@ -276,36 +275,63 @@ function registerPayButton() {
     var urlParams = new URLSearchParams(window.location.search);
     //TODO: Dapetin ?paymentID di url param
     var paymentId = urlParams.get('paymentID');
-    console.log("PAYMENTID:", paymentId);
+    if (paymentId) {
+        console.log("PAYMENTID:", paymentId);
 
-
-    //TODO: masukin value kyk SC021 dari sini (pake value paymentID diatas)
-    $('#id-order').html(`<strong>`+ (paymentId || "No Order Yet") +`</strong>`);
-
-
-    $('#pay-btn').click(function (event) {
-        // Testing only, prevent refreshing page
-        event.preventDefault();
-        // https://stackoverflow.com/questions/9870512/how-to-obtain-the-query-string-from-the-current-url-with-javascript  
-        
-
-        //TODO: Handle Payment
-        console.log("Pay Cliecked")
+        // TODO: Get Payment dari sini
         $.ajax({
-            url: '',
-            type: 'post',
+            url: svc_payment + "/get_payment/" + paymentId,
+            type: 'get',
             dataType: 'json',
-            data: {
+            data:{}
+        }).then(({external_id, method, status, amount })=>{
+            console.log("Payment Record:",external_id, method)
+            $('#id-order').html(`<strong>` + (paymentId || "No Order Yet") + `</strong>`);
 
-            },
-            success: function (itemList) {
-                alert("Payment Success!")
-                window.location = '?paymentID=' + response2.payment_id;
+            $('#payment-container').html(`
+            <div id="ongoing-payment" class="summary-row flex-row content-space-between">
+                <p class="summary-key">ORDER ID</p>
+                <p id="id-order" class="summary-value">`+paymentId+`</p>
+            </div>
+            <div id="ongoing-payment" class="summary-row flex-row content-space-between">
+                <p class="summary-key">Method</p>
+                <p id="id-order" class="summary-value">`+method+`</p>
+            </div>
+            <div id="ongoing-payment" class="summary-row flex-row content-space-between">
+                <p class="summary-key">Amount</p>
+                <p id="id-order" class="summary-value">`+amount+`</p>
+            </div>
+            <div id="ongoing-payment" class="summary-row flex-row content-space-between">
+                <p class="summary-key">Status</p>
+                <p id="id-order" class="summary-value">`+status+`</p>
+            </div>
+            `
+            + (status == "UNPAID" ?
+            `<form action="">
+                <button id="pay-btn" type="submit" >
+                    Bayar dong
+                </button>
+            </form>`: ""
+            )
+            )
 
-                $('#ongoing-payment').html('There is no ongoing payment.');
-            }
-        });
-    });
+            console.log("registering")
+            $('#pay-btn').click(function (event) {
+                event.preventDefault();
+                window.location = '?paymentID=' + paymentId;
+        
+                $.ajax({
+                    url: svc_payment + "/manage_payment",
+                    type: 'post',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        "id": paymentId,
+                        "action": "PAY"
+                    })
+                })
+            });
+        })
+    }
 }
 
 

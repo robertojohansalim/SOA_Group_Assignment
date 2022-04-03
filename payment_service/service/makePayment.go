@@ -19,6 +19,10 @@ const (
 	REJECTED_STATUS = "REJECTED"
 )
 
+const (
+	DEFAULT_USER_ID = "user-id"
+)
+
 // Request Example
 // {
 //     "external_id": "your-unique-id",
@@ -36,7 +40,7 @@ type MakePaymentReq struct {
 }
 
 type MakePaymentRes struct {
-	PaymentLink string `json:"paymentLink"`
+	PaymentID string `json:"payment_id"`
 }
 
 func (ths *paymentService) MakePayment(responseWriter http.ResponseWriter, request *http.Request) {
@@ -47,18 +51,11 @@ func (ths *paymentService) MakePayment(responseWriter http.ResponseWriter, reque
 	// // byts, _ := json.MarshalIndent(, "", " ")
 	fmt.Println("\033[36m", string("make Payment Called"), "\033[0m")
 
-	// resTe := MakePaymentRes{
-	// 	PaymentLink: fmt.Sprintf("%s/api/manage_payment/%s/QUERY", "publicURL", "record.ID"),
+	// userID, err := AuthorizeGetUserID(request, ths.paymentModel)
+	// if err != nil {
+	// 	writeResponse(responseWriter, http.StatusUnauthorized, fmt.Sprintf("Unauthorized Access: %v", err.Error()))
+	// 	return
 	// }
-	// bytsTe, _ := json.Marshal(resTe)
-	// writeResponse(responseWriter, http.StatusOK, string(bytsTe))
-	// return
-
-	userID, err := AuthorizeGetUserID(request, ths.paymentModel)
-	if err != nil {
-		writeResponse(responseWriter, http.StatusUnauthorized, fmt.Sprintf("Unauthorized Access: %v", err.Error()))
-		return
-	}
 
 	var req MakePaymentReq
 	body, err := ioutil.ReadAll(request.Body)
@@ -75,14 +72,9 @@ func (ths *paymentService) MakePayment(responseWriter http.ResponseWriter, reque
 		return
 	}
 
-	if !isMethodAvailable(req.Method) {
-		writeResponse(responseWriter, http.StatusBadRequest, "unsupported payment method")
-		return
-	}
-
 	expiredAt := time.Now().Add(time.Duration(req.ActiveDuration) * time.Second).Unix()
 	record, err := ths.paymentModel.InsertPaymentRecord(model.PaymentRecordModel{
-		UserID:     userID,
+		UserID:     DEFAULT_USER_ID,
 		ExternalID: req.ExternalID,
 		Method:     req.Method,
 		Amount:     req.Amount,
@@ -98,7 +90,7 @@ func (ths *paymentService) MakePayment(responseWriter http.ResponseWriter, reque
 		publicURL = strings.Replace(publicURL, "http://127.0.0.1", "localhost", 1)
 	}
 	res := MakePaymentRes{
-		PaymentLink: fmt.Sprintf("%s/api/manage_payment/%s/QUERY", publicURL, record.ID),
+		PaymentID: record.ID,
 	}
 	byts, _ := json.Marshal(res)
 	writeResponse(responseWriter, http.StatusOK, string(byts))

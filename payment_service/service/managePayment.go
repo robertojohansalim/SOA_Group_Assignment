@@ -4,15 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
 	"robertojohansalim.github.com/payment/model"
 )
 
-const MANAGE_PAYMENT_PATH = "/api/manage_payment/{id}/{status}"
+const MANAGE_PAYMENT_PATH = "/api/manage_payment"
 
 type ManagePaymentReq struct {
 	ID         string `json:"id"`
@@ -23,14 +23,32 @@ type ManagePaymentRes struct {
 }
 
 func (ths *paymentService) ManagePayment(responseWriter http.ResponseWriter, request *http.Request) {
-	if request.Method != "GET" {
+	if request.Method != "POST" {
 		writeResponse(responseWriter, http.StatusBadRequest, "Unsupported Method")
 		return
 	}
 
-	vars := mux.Vars(request)
-	paymentRecordID := vars["id"]
-	paymentStatus := vars["status"]
+	var req ManagePaymentReq
+	body, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		writeResponse(responseWriter, http.StatusBadRequest, err.Error())
+		return
+	}
+	err = json.Unmarshal(body, &req)
+	if err != nil {
+		writeResponse(responseWriter, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	paymentRecordID := req.ID
+	paymentStatus := ""
+	switch req.Action {
+	case "PAY":
+		paymentStatus = PAID_STATUS
+	case "CANCEL":
+		paymentStatus = REJECTED_STATUS
+	}
+
 	if paymentRecordID == "" || paymentStatus == "" {
 		writeResponse(responseWriter, http.StatusNotFound, "")
 		return
@@ -43,39 +61,18 @@ func (ths *paymentService) ManagePayment(responseWriter http.ResponseWriter, req
 		return
 	}
 
-	if paymentStatus == "QUERY" {
-		if paymentRecord.Status != UNPAID_STATUS {
-			switch paymentRecord.Status {
-			case PAID_STATUS:
-				writeResponse(responseWriter, http.StatusOK, payHTMLResponse())
-			default:
-				writeResponse(responseWriter, http.StatusOK, rejectHTMLResponse())
-			}
-			return
-		}
-		writeResponse(responseWriter, http.StatusOK, queryHTMLResponse(paymentRecordID))
-		return
-	}
-
 	if paymentRecord.Status != UNPAID_STATUS {
-		writeResponse(responseWriter, http.StatusTemporaryRedirect, fmt.Sprintf("/api/manage_payment/%s/QUERY", paymentRecordID))
+		// writeResponse(responseWriter, http.StatusTemporaryRedirect, fmt.Sprintf("/api/manage_payment/%s/QUERY", paymentRecordID))
+		writeResponse(responseWriter, http.StatusAlreadyReported, "STATUS CANNOT BE CHANGED")
 		return
 	}
 
 	var response string
 	switch paymentStatus {
-	case "PAY":
-		response = payHTMLResponse()
+	case PAID_STATUS:
 		ths.paymentModel.UpdatePaymentStatusRecordByID(paymentRecordID, PAID_STATUS)
-
-		// TODO: If need to be improved, Make this an event driven process, let the this process stops and make the callback from another process
-		notifyCallbackUpdateStatus(ths.paymentModel, paymentRecordID, "PAY_EVENT")
-	case "REJECT":
-		response = rejectHTMLResponse()
+	case REJECTED_STATUS:
 		notifyCallbackUpdateStatus(ths.paymentModel, paymentRecordID, "REJECT_EVENT")
-
-		// TODO: If need to be improved, Make this an event driven process, let the this process stops and make the callback from another process
-		ths.paymentModel.UpdatePaymentStatusRecordByID(paymentRecordID, REJECTED_STATUS)
 	default:
 		{
 			writeResponse(responseWriter, http.StatusNotFound, "")

@@ -10,8 +10,6 @@ type PaymentService interface {
 	MakePayment(http.ResponseWriter, *http.Request)
 	GetPayment(http.ResponseWriter, *http.Request)
 	ManagePayment(http.ResponseWriter, *http.Request)
-
-	// RegisterCallback(http.ResponseWriter, *http.Request)
 }
 
 func NewPaymentService(paymentModel model.PaymentDatabaseModel, publicURL string) PaymentService {
