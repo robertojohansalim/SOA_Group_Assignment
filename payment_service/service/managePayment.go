@@ -1,15 +1,10 @@
 package service
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
-
-	"robertojohansalim.github.com/payment/model"
 )
 
 const MANAGE_PAYMENT_PATH = "/api/manage_payment"
@@ -67,18 +62,8 @@ func (ths *paymentService) ManagePayment(responseWriter http.ResponseWriter, req
 		return
 	}
 
+	ths.paymentModel.UpdatePaymentStatusRecordByID(paymentRecordID, paymentStatus)
 	var response string
-	switch paymentStatus {
-	case PAID_STATUS:
-		ths.paymentModel.UpdatePaymentStatusRecordByID(paymentRecordID, PAID_STATUS)
-	case REJECTED_STATUS:
-		notifyCallbackUpdateStatus(ths.paymentModel, paymentRecordID, "REJECT_EVENT")
-	default:
-		{
-			writeResponse(responseWriter, http.StatusNotFound, "")
-			return
-		}
-	}
 	writeResponse(responseWriter, http.StatusOK, response)
 	return
 }
@@ -95,88 +80,4 @@ type PaymentCallbackEvent struct {
 	Method     string `json:"method"`
 	Amount     int64  `json:"amount"`
 	ExpiryDate string `json:"expiry_date"`
-}
-
-// TODO: Improvement Make this become an EVENT DRIVEN process (using pubsub / maybe golang channel)
-// https://medium.com/@ohm.patel1997/publisher-subscriber-architecture-using-golang-5566ca852d9f
-func notifyCallbackUpdateStatus(paymentModel model.PaymentDatabaseModel, recordID, EVENT_TITLE string) error {
-	paymentRecord, err := paymentModel.GetPaymentRecordByID(recordID)
-	if err != nil {
-		return err
-	}
-	paymentCallback, err := paymentModel.GetUserCallback(paymentRecord.UserID)
-	if err != nil {
-		return err
-	}
-	var paymentStatus string
-	switch EVENT_TITLE {
-	case PAY_EVENT:
-		paymentStatus = PAID_STATUS
-	case REJECT_EVENT:
-		paymentStatus = REJECTED_STATUS
-	}
-	payload := PaymentCallbackEvent{
-		ID:         recordID,
-		ExternalID: paymentRecord.ExternalID,
-		Status:     paymentStatus,
-		Method:     paymentRecord.Method,
-		Amount:     paymentRecord.Amount,
-		ExpiryDate: time.Unix(paymentRecord.ExpiredAt, 0).Format("2006-01-02 15:04:05"),
-	}
-	byts, _ := json.Marshal(payload)
-	_, err = http.Post(paymentCallback.CallbackURL, "application/json", bytes.NewBuffer(byts))
-	return err
-}
-
-func queryHTMLResponse(recordId string) string {
-	response := fmt.Sprintf(
-		`
-		<!DOCTYPE html>
-		<html>
-		<body>
-
-		<h1>The button Element</h1>
-
-		<button onclick="location.href = '/api/manage_payment/%s/PAY';" id="myButton" style="font-size:20pt;background-color:#00FF00" >PAY</button>
-		<button onclick="location.href = '/api/manage_payment/%s/REJECT';" id="myButton" style="font-size:20pt;background-color:#FF0000" >REJECT</button>
-
-		</body>
-		</html>
-		`,
-		recordId,
-		recordId,
-	)
-	return response
-}
-
-func payHTMLResponse() string {
-	response :=
-		`
-		<!DOCTYPE html>
-		<html>
-		<body>
-
-		<h1>PAYMENT HAS BEEN <b style="color:#00F800">PAID</b></h1>
-
-		
-		</body>
-		</html>
-		`
-	return response
-}
-
-func rejectHTMLResponse() string {
-	response :=
-		`
-		<!DOCTYPE html>
-		<html>
-		<body>
-
-		<h1 >PAYMENT HAS BEEN <b style="color:#F80000">REJECTED</b></h1>
-
-		
-		</body>
-		</html>
-		`
-	return response
 }

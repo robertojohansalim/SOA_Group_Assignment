@@ -63,7 +63,23 @@ Request Body:
 ```
 // Left empty
 ```
-
+Response Body:
+```
+{
+  "ID": "cart-id",
+  "paymentMethod": "BCA_VA",
+  "lineItems": [
+    {
+      "product_id": "product-id"
+      "description": "Item 1 Very Long Description",
+      "price": 15000,
+      "quantity": 1,
+      "title": "Item 1"
+    }
+  ],
+  "totalPrice": 20000
+}
+```
 
 ### Upsert Cart
 `POST` `http://127.0.0.1:5000/api/upsert_cart`
@@ -71,10 +87,11 @@ Request Body:
 Request body:
 ```
 {
-  "ID": "9458b918-0afc-4163-aa20-219f8c0bb38f",
-  "paymentMethod": "",
+  "ID": "cart-id",
+  "paymentMethod": "BCA_VA",
   "lineItems": [
     {
+      "product_id": "product-id"
       "description": "Item 1 Very Long Description",
       "price": 15000,
       "quantity": 1,
@@ -89,11 +106,18 @@ Request body:
 Request body:
 ```
 {
-  "ID": "9458b918-0afc-4163-aa20-219f8c0bb38f",
+  "ID": "cart-id",
   "action":"CHECKOUT"
 }
 ```
-
+response:
+```
+{
+  "cart_id": "cart-id",
+  "payment_method": "BCA_VA",
+  "payment_id": "payment-id"
+}
+```
 ## Reference:
 - https://towardsdatascience.com/the-right-way-to-build-an-api-with-python-cd08ab285f8f
 - https://flask.palletsprojects.com/en/2.1.x/tutorial/layout/

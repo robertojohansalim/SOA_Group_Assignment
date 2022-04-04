@@ -12,9 +12,6 @@ type PaymentDatabaseModel interface {
 	GetPaymentRecordByExternalID(query_userId, query_external_id string) (PaymentRecordModel, error)
 	UpdatePaymentStatusRecordByID(string, string) (PaymentRecordModel, error)
 	UpdatePaymentStatusRecord(string, string, string) (PaymentRecordModel, error)
-
-	UpsertUserCallback(UserCallback) (UserCallback, error)
-	GetUserCallback(string) (UserCallback, error)
 }
 
 type PaymentDatabaseModelConfig struct {

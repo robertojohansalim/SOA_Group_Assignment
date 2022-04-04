@@ -11,12 +11,6 @@
 
 
 ## Service Documentation
-### Authorization
-All Request must provide Authorization Header that contains the username
-```
-"authorization": "registered_account_id"
-```
-
 ### Make Payment Record
 `POST:` ```/api/make_payment```
 
@@ -30,6 +24,12 @@ Request Body:
     "active_duration": 3600 // InSeconds
 }
 ```
+Response:
+```
+{
+    "payment_id": "payment_01"
+}
+```
 
 
 ### Get Payment Record
@@ -37,18 +37,26 @@ Request Body:
 ```
 // No Body Parameter
 ```
+Response:
+```
+{
+	"external_id"` : "your-external-id",
+	"method"` : "BCA_VA",
+	"status"` : "UNPAID",
+	"amount"` : 20000
+}
+```
 ### Complete Payment Record
 `POST:` `/api/manage_payment`
 ```
 {
     "ID" :"Generated ID",
-    "external_id": "your-unique-id",
-    "action": "pay"
+    "action": "PAY"
 }
 ```
 
 List of action:
-- "pay"
-- "cancel"
+- "PAY"
+- "CANCEL"
 
 

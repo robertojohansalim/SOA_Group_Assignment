@@ -115,15 +115,9 @@ def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, produ
     @cross_origin
     @bp.route("/api/place_order", methods=["POST"])
     def place_order():
-        print("PLACE ORDER")
-        # request_data = request.get_json()
-        print(str(request.get_data()))
         request_data = json.loads(request.data, strict=False)
-        print(request_data)
         cart_ID, paymentMethod = "",  ""
-        options = {}
         try:
-            print(request_data)
             cart_ID = request_data["ID"]
         except:
             return "Error Bad Request"
@@ -134,25 +128,23 @@ def create_cart_bp(redisClient: RedisClient, paymentClient: PaymentClient, produ
 
         cart = Cart(**cart)
 
+        # Remove Product Quantity
+        for item in cart.lineItems:
+            productClient.reduceStock(item.product_id, item.quantity)
+
         # Empty Checkouted Cart
         redisClient.delete(cart_ID)
 
+        # Generate Payment 
         paymentMethod = cart.paymentMethod
         externalID = str(uuid.uuid1())
         paymentID = paymentClient.makePayment(
             externalID=externalID, amount=cart.totalPrice, method=paymentMethod)
 
-
-        print()
-        # TODO: Remove Product Quantity
-
-        # TODO: return payment method
-        # paymentMet
         returnValue = {
             "cart_id": cart_ID,
             "payment_method": paymentMethod or "",
             "payment_id": paymentID,
-            # "payment_link": paymentLink
         }
         return jsonify(returnValue)
 
